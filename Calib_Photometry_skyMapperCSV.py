@@ -120,7 +120,7 @@ for i in range(len(rmag)):
             dec_diff = (dec[i] - star_dec[j])/0.000277778
             dist = (ra_diff**2 + dec_diff**2)**0.5
             if dist <= cm_error_region:
-                if (ra[i] in detect_ra and dec[i] in detect_dec):
+		if (ra[i] in detect_ra and dec[i] in detect_dec):
                     continue
                 else:
                     detect_ra.append(ra[i])
@@ -129,7 +129,32 @@ for i in range(len(rmag)):
                     real_magerr.append(star_magerr[j])
                     fake_mag.append(rmag[i])
                     fake_magerr.append(rmagerr[i])
-                    print(ra[i],' ',dec[i],' ',star_ra[j],' ',star_dec[j],' ',star_mag[j],' ',star_magerr[j],' ',rmag[i],' ',rmagerr[i])
+
+"""Removes very wrong points based on the difference in their matched magnitudes compared to the mean"""
+"""for the population. There's probably a better way but it works."""
+total_mag_diff = 0.0
+mean_mag_diff = 0.0
+
+for i in range(len(detect_ra)):
+    total_mag_diff = total_mag_diff + abs(real_mag[i] - fake_mag[i])
+
+mean_mag_diff = total_mag_diff / len(detect_ra)
+
+k = 0
+l = len(detect_ra)
+
+while k < l:
+    if abs(mean_mag_diff - abs(real_mag[k] - fake_mag[k])) > 1:
+        detect_ra.pop(k)
+	detect_dec.pop(k)
+	real_mag.pop(k)
+        real_magerr.pop(k)
+        fake_mag.pop(k)
+        fake_magerr.pop(k)
+	l = l - 1
+    else:
+	print(detect_ra[k],' ',detect_dec[k],' ',ra[k],' ',dec[k],' ',real_mag[k],' ',real_magerr[k],' ',fake_mag[k],' ',fake_magerr[k])
+	k = k + 1
 
 sys.stdout = orig_stdout
 resultf.close()
