@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Photometry calibration script v1.0
 # Scrapes skymapper CSV files
-# Created by Adam Higgins & Rob Eyles
+# Created by Adam Higgins & modified by Rob Eyles
 # Email: abh13@le.ac.uk & raje1@leicester.ac.uk
 
 from astropy.io import fits
@@ -24,7 +24,7 @@ from bs4 import BeautifulSoup
 """ Calculates the magnitude zero-point offset for an image on non-photometric
 nights. It currently does this comparing field star instrumental magnitudes
 against measured catalogue values and determines the offset! The script
-currently uses APASS, SDSS and PanSTARRs. It can calibrate images in
+currently uses csvs from Skymapper. It can calibrate images in
 normal filters (B,V,R) and SDSS filters (u,g,r,i,z) """
 
 """ Ask for user inputs... """
@@ -155,6 +155,16 @@ while k < l:
     else:
 	print(detect_ra[k],' ',detect_dec[k],' ',ra[k],' ',dec[k],' ',real_mag[k],' ',real_magerr[k],' ',fake_mag[k],' ',fake_magerr[k])
 	k = k + 1
+
+sys.stdout = orig_stdout
+resultf.close()
+
+orig_stdout = sys.stdout
+resultf = open('ds9_regions.reg', "w")
+sys.stdout = resultf
+
+for i in range(len(detect_ra)):
+    print "WCS; circle ",detect_ra[i]," ",detect_dec[i]," ",0.0008
 
 sys.stdout = orig_stdout
 resultf.close()
